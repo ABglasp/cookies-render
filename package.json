@@ -1,7 +1,6 @@
 {
   "name": "cookies-render",
   "version": "1.0.0",
-  "description": "Serwer cookies dla YouTube agenta AI",
   "main": "index.js",
   "scripts": {
     "start": "npx playwright install chromium && node index.js",
