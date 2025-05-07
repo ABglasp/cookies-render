@@ -6,19 +6,22 @@ const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const COOKIES_PATH = path.join('/tmp', 'cookies.txt');
+const COOKIES_PATH = path.join(__dirname, 'cookies.txt'); // trwała ścieżka
 
-// Główna strona testowa
+// Testowa strona główna
 app.get('/', (req, res) => {
+  console.log('➡️ GET / — Strona testowa');
   res.send('✅ Serwer cookies działa');
 });
 
-// Endpoint pobierania cookies.txt
+// Pobieranie cookies.txt
 app.get('/cookies', async (req, res) => {
+  console.log('➡️ GET /cookies — próba odczytu cookies.txt');
+
   if (!fs.existsSync(COOKIES_PATH)) {
-    console.log('❗ Brak cookies.txt – generuję nowe');
+    console.warn('❗ cookies.txt nie istnieje — uruchamiam generowanie');
     await generateCookies();
-    setTimeout(() => sendCookies(res), 2000); // Poczekaj na zapis pliku
+    setTimeout(() => sendCookies(res), 2000);
   } else {
     sendCookies(res);
   }
@@ -27,41 +30,45 @@ app.get('/cookies', async (req, res) => {
 function sendCookies(res) {
   try {
     const data = fs.readFileSync(COOKIES_PATH, 'utf-8');
+    console.log('✅ cookies.txt odczytany poprawnie');
     res.setHeader('Content-Type', 'text/plain');
     res.send(data);
   } catch (err) {
+    console.error('❌ Błąd odczytu cookies.txt:', err.message);
     res.status(500).send('❌ Błąd odczytu cookies.txt');
   }
 }
 
-// Endpoint generowania cookies
+// Generowanie cookies
 app.get('/generate', async (req, res) => {
+  console.log('➡️ GET /generate — uruchamiam generowanie cookies');
   await generateCookies()
     .then(() => res.send('✅ cookies.txt wygenerowany'))
     .catch(() => res.status(500).send('❌ Błąd generowania cookies'));
 });
 
-// Główna funkcja generowania
+// Główna funkcja generująca
 function generateCookies() {
+  console.log('🔄 Wywołanie login.js...');
   return new Promise((resolve, reject) => {
     exec('node login.js', (error, stdout, stderr) => {
       if (error) {
         console.error('❌ Błąd generowania:', error.message);
         return reject();
       }
-      console.log(stdout);
+      console.log('✅ login.js zakończony:\n' + stdout);
       resolve();
     });
   });
 }
 
-// Auto-generate co 10 minut
+// Auto-refresh cookies co 10 min
 setInterval(() => {
   console.log('🔁 Auto-refresh cookies...');
   fetch(`http://localhost:${PORT}/generate`)
     .then(res => console.log(`✅ Auto-refresh status: ${res.status}`))
     .catch(err => console.error('❌ Auto-refresh error:', err.message));
-}, 1000 * 60 * 10); // 10 minut
+}, 1000 * 60 * 10);
 
 // Self-ping co 3 minuty
 setInterval(() => {
