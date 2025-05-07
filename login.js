@@ -26,19 +26,19 @@ require('dotenv').config();
 
     const cookies = await context.cookies();
 
-    // Zamiana cookies do formatu Netscape
+    // Zamiana na format Netscape
     const netscapeCookies = cookies.map(cookie => {
       const domain = cookie.domain.startsWith('.') ? cookie.domain : '.' + cookie.domain;
       const flag = cookie.domain.startsWith('.') ? 'TRUE' : 'FALSE';
       const path = cookie.path;
       const secure = cookie.secure ? 'TRUE' : 'FALSE';
-      const expiration = Math.floor(Date.now() / 1000) + 3600; // 1h
+      const expiration = Math.floor(Date.now() / 1000) + 3600;
       const name = cookie.name;
       const value = cookie.value;
       return [domain, flag, path, secure, expiration, name, value].join('\t');
     }).join('\n');
 
-    const filePath = path.join(__dirname, 'cookies.txt'); // zapisz lokalnie
+    const filePath = path.join('/opt/render/project/src', 'cookies.txt'); // 👈 stała ścieżka
     fs.writeFileSync(filePath, netscapeCookies);
     console.log('✅ cookies.txt zapisany w:', filePath);
 
