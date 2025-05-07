@@ -6,9 +6,9 @@ const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const COOKIES_PATH = path.join(__dirname, 'cookies.txt'); // trwała ścieżka
+const COOKIES_PATH = path.join('/opt/render/project/src', 'cookies.txt'); // 👈 stała ścieżka
 
-// Testowa strona główna
+// Strona testowa
 app.get('/', (req, res) => {
   console.log('➡️ GET / — Strona testowa');
   res.send('✅ Serwer cookies działa');
@@ -39,7 +39,7 @@ function sendCookies(res) {
   }
 }
 
-// Generowanie cookies
+// Endpoint generowania cookies
 app.get('/generate', async (req, res) => {
   console.log('➡️ GET /generate — uruchamiam generowanie cookies');
   await generateCookies()
@@ -47,7 +47,7 @@ app.get('/generate', async (req, res) => {
     .catch(() => res.status(500).send('❌ Błąd generowania cookies'));
 });
 
-// Główna funkcja generująca
+// Główna funkcja generowania
 function generateCookies() {
   console.log('🔄 Wywołanie login.js...');
   return new Promise((resolve, reject) => {
@@ -62,7 +62,7 @@ function generateCookies() {
   });
 }
 
-// Auto-refresh cookies co 10 min
+// Auto-refresh cookies co 10 minut
 setInterval(() => {
   console.log('🔁 Auto-refresh cookies...');
   fetch(`http://localhost:${PORT}/generate`)
