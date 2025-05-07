@@ -1,4 +1,4 @@
-const chromium = require('playwright').chromium;
+const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -11,39 +11,37 @@ require('dotenv').config();
   const page = await context.newPage();
 
   try {
-    console.log('➡️ Logowanie do YouTube...');
+    console.log('➡️ Otwieram stronę logowania YouTube...');
     await page.goto('https://accounts.google.com/');
 
     await page.fill('input[type="email"]', process.env.YT_EMAIL);
     await page.keyboard.press('Enter');
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
 
     await page.fill('input[type="password"]', process.env.YT_PASSWORD);
     await page.keyboard.press('Enter');
-    await page.waitForTimeout(5000); // Można wydłużyć do 10000
+    await page.waitForTimeout(5000);
 
-    console.log('✅ Formularz logowania wypełniony');
+    console.log('✅ Zalogowano – pobieram cookies...');
 
     const cookies = await context.cookies();
 
-    // Zamiana na format Netscape
     const netscapeCookies = cookies.map(cookie => {
       const domain = cookie.domain.startsWith('.') ? cookie.domain : '.' + cookie.domain;
       const flag = cookie.domain.startsWith('.') ? 'TRUE' : 'FALSE';
       const path = cookie.path;
       const secure = cookie.secure ? 'TRUE' : 'FALSE';
       const expiration = Math.floor(Date.now() / 1000) + 3600;
-      const name = cookie.name;
-      const value = cookie.value;
-      return [domain, flag, path, secure, expiration, name, value].join('\t');
+      return `${domain}\t${flag}\t${path}\t${secure}\t${expiration}\t${cookie.name}\t${cookie.value}`;
     }).join('\n');
 
-    const filePath = path.join('/opt/render/project/src', 'cookies.txt'); // 👈 stała ścieżka
+    // Główna i trwała ścieżka na Render
+    const filePath = path.join('/opt/render/project/src', 'cookies.txt');
     fs.writeFileSync(filePath, netscapeCookies);
-    console.log('✅ cookies.txt zapisany w:', filePath);
+    console.log(`✅ cookies.txt zapisany w: ${filePath} (${netscapeCookies.length} znaków)`);
 
   } catch (err) {
-    console.error('❌ Błąd logowania:', err.message);
+    console.error('❌ Błąd podczas logowania lub zapisu cookies:', err.message);
   }
 
   await browser.close();
