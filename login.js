@@ -32,7 +32,9 @@ require('dotenv').config();
       return [domain, flag, path, secure, expiration, name, value].join('\t');
     }).join('\n');
 
-    fs.writeFileSync('cookies.txt', netscapeCookies);
+    const path = require('path');
+    const filePath = path.join(__dirname, 'cookies.txt');
+    fs.writeFileSync(filePath, netscapeCookies);
     console.log("✅ cookies.txt zapisany w formacie Netscape");
   } catch (err) {
     console.error("❌ Błąd logowania:", err);
