@@ -38,7 +38,7 @@ require('dotenv').config();
       return [domain, flag, path, secure, expiration, name, value].join('\t');
     }).join('\n');
 
-    const filePath = path.join(__dirname, 'cookies.txt');
+    const filePath = path.join(__dirname, 'cookies.txt'); // zapisz lokalnie
     fs.writeFileSync(filePath, netscapeCookies);
     console.log('✅ cookies.txt zapisany w:', filePath);
 
